@@ -9,13 +9,17 @@ export function useDecks() {
 
   const fetchDecks = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('decks')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) setError(error.message);
-    else setDecks(data ?? []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from('decks')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) setError(error.message);
+      else setDecks(data ?? []);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchDecks(); }, [fetchDecks]);
