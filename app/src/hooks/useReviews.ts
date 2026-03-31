@@ -7,17 +7,16 @@ export function useReviews(deckId: string) {
   const getDueCards = useCallback(async (): Promise<Card[]> => {
     const today = new Date().toISOString().split('T')[0];
 
-    // All cards in this deck
-    const { data: allCards } = await supabase
+    const { data: allCards, error: cardsError } = await supabase
       .from('cards')
       .select('*')
       .eq('deck_id', deckId);
 
-    if (!allCards || allCards.length === 0) return [];
+    if (cardsError || !allCards || allCards.length === 0) return [];
 
-    // Cards that have been reviewed and are NOT due yet (next_review_date > today)
-    const { data: session } = await supabase.auth.getSession();
-    const userId = session?.session?.user.id;
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData?.session?.user.id;
+    if (!userId) return [];
 
     const { data: futureReviews } = await supabase
       .from('card_reviews')
@@ -28,7 +27,6 @@ export function useReviews(deckId: string) {
 
     const notDueIds = new Set((futureReviews ?? []).map((r: { card_id: string }) => r.card_id));
 
-    // Return cards that are either never reviewed OR due today
     return allCards.filter(c => !notDueIds.has(c.id));
   }, [deckId]);
 
@@ -37,16 +35,20 @@ export function useReviews(deckId: string) {
     return cards.length;
   }, [getDueCards]);
 
-  const getReviewForCard = async (cardId: string): Promise<CardReview | null> => {
+  const getReviewForCard = useCallback(async (cardId: string): Promise<CardReview | null> => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData?.session?.user.id;
+    if (!userId) return null;
     const { data } = await supabase
       .from('card_reviews')
       .select('*')
       .eq('card_id', cardId)
+      .eq('user_id', userId)
       .maybeSingle();
     return data ?? null;
-  };
+  }, []);
 
-  const saveReview = async (
+  const saveReview = useCallback(async (
     card: Card,
     rating: number,
     existingReview: CardReview | null,
@@ -61,6 +63,7 @@ export function useReviews(deckId: string) {
 
     const { data: session } = await supabase.auth.getSession();
     const userId = session?.session?.user.id;
+    if (!userId) return 'Not authenticated';
 
     const { error } = await supabase.from('card_reviews').upsert(
       {
@@ -73,7 +76,7 @@ export function useReviews(deckId: string) {
     );
 
     return error?.message ?? null;
-  };
+  }, []);
 
   return { getDueCards, getDueCount, getReviewForCard, saveReview };
 }
