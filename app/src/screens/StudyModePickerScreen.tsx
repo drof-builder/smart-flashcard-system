@@ -16,14 +16,25 @@ export default function StudyModePickerScreen({ navigation, route }: Props) {
   const { getDueCount } = useReviews(deckId);
   const { cards } = useCards(deckId);
   const [dueCount, setDueCount] = useState<number | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     getDueCount()
       .then(setDueCount)
-      .catch(() => setDueCount(0));
+      .catch(() => setLoadError('Could not load due cards. Check your connection.'));
   }, [getDueCount]);
 
   if (dueCount === null) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;
+
+  if (loadError) return (
+    <View style={styles.centered}>
+      <Text style={styles.allCaughtUp}>Something went wrong</Text>
+      <Text style={styles.subtitle}>{loadError}</Text>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backBtnText}>Go Back</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   if (dueCount === 0) {
     return (
