@@ -32,9 +32,8 @@ export function applyReview(card: ReviewCard, rating: number): ReviewResult {
   if (ease_factor < 1.3) ease_factor = 1.3;
 
   const nextDate = new Date();
-  nextDate.setDate(nextDate.getDate() + interval);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const next_review_date = `${nextDate.getFullYear()}-${pad(nextDate.getMonth() + 1)}-${pad(nextDate.getDate())}`;
+  nextDate.setUTCDate(nextDate.getUTCDate() + interval);
+  const next_review_date = nextDate.toISOString().split('T')[0];
 
   return { ease_factor, interval, repetitions, next_review_date };
 }

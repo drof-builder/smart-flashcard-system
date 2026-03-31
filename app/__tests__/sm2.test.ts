@@ -68,7 +68,7 @@ describe('applyReview — next_review_date', () => {
   test('next_review_date is today + interval days', () => {
     const result = applyReview(defaultCard, 4); // interval will be 1
     const expected = new Date();
-    expected.setDate(expected.getDate() + 1);
+    expected.setUTCDate(expected.getUTCDate() + 1);
     expect(result.next_review_date).toBe(expected.toISOString().split('T')[0]);
   });
 });
