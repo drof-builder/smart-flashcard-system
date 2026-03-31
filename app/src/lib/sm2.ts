@@ -33,7 +33,8 @@ export function applyReview(card: ReviewCard, rating: number): ReviewResult {
 
   const nextDate = new Date();
   nextDate.setDate(nextDate.getDate() + interval);
-  const next_review_date = nextDate.toISOString().split('T')[0];
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const next_review_date = `${nextDate.getFullYear()}-${pad(nextDate.getMonth() + 1)}-${pad(nextDate.getDate())}`;
 
   return { ease_factor, interval, repetitions, next_review_date };
 }
