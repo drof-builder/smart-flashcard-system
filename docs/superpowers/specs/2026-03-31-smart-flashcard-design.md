@@ -74,6 +74,12 @@ Inherits deck ownership through RLS policy.
 
 One row per card per user. Created on first review with SM-2 default values. Updated after every study session.
 
+**Constraints:**
+- Unique constraint on `(card_id, user_id)` — enforces one review record per card per user
+
+**Indexes:**
+- `card_reviews(user_id, next_review_date)` — composite index for the "due cards" query (runs on every session)
+
 ---
 
 ## Spaced Repetition (SM-2 Algorithm)
@@ -130,6 +136,7 @@ The Deck Detail screen shows a "due cards" count: cards where `next_review_date 
 - Requires minimum 4 cards in the deck to generate 3 distractor options
 - If deck has fewer than 4 cards, fall back to Flip Card mode automatically with a notice
 - Distractors pulled randomly from other cards in the same deck (using `back` values as wrong answers)
+- Distractor rules: exclude the correct card's `back` value, deduplicate, shuffle all 4 options before display
 
 ### Type Answer
 - Comparison: trim whitespace + lowercase both sides
@@ -139,6 +146,25 @@ The Deck Detail screen shows a "due cards" count: cards where `next_review_date 
 ### Rating & SM-2 Integration
 - Flip Cards: user manually rates 0–5
 - Multiple Choice + Type Answer: auto-rated (correct = 4, incorrect = 1)
+
+---
+
+## Row-Level Security Policies
+
+All tables restrict access so users can only read and write their own data.
+
+### `profiles`
+- SELECT: `id = auth.uid()`
+- UPDATE: `id = auth.uid()`
+
+### `decks`
+- SELECT / INSERT / UPDATE / DELETE: `user_id = auth.uid()`
+
+### `cards`
+- SELECT / INSERT / UPDATE / DELETE: `deck_id IN (SELECT id FROM decks WHERE user_id = auth.uid())`
+
+### `card_reviews`
+- SELECT / INSERT / UPDATE / DELETE: `user_id = auth.uid()`
 
 ---
 
