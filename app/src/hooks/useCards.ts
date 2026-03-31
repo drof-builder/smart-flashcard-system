@@ -9,14 +9,18 @@ export function useCards(deckId: string) {
 
   const fetchCards = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('cards')
-      .select('*')
-      .eq('deck_id', deckId)
-      .order('created_at', { ascending: true });
-    if (error) setError(error.message);
-    else setCards(data ?? []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from('cards')
+        .select('*')
+        .eq('deck_id', deckId)
+        .order('created_at', { ascending: true });
+      if (error) setError(error.message);
+      else setCards(data ?? []);
+    } finally {
+      setLoading(false);
+    }
   }, [deckId]);
 
   useEffect(() => { fetchCards(); }, [fetchCards]);
