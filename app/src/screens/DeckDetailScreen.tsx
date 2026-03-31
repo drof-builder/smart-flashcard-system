@@ -17,7 +17,7 @@ type Props = {
 
 export default function DeckDetailScreen({ navigation, route }: Props) {
   const { deckId, deckName } = route.params;
-  const { cards, loading, createCard, updateCard, deleteCard } = useCards(deckId);
+  const { cards, loading, error, createCard, updateCard, deleteCard } = useCards(deckId);
   const { getDueCount } = useReviews(deckId);
   const [dueCount, setDueCount] = useState<number | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -35,10 +35,18 @@ export default function DeckDetailScreen({ navigation, route }: Props) {
   }, [navigation, deckName]);
 
   useEffect(() => {
-    getDueCount().then(setDueCount);
-  }, [cards]);
+    getDueCount()
+      .then(setDueCount)
+      .catch(() => setDueCount(null));
+  }, [cards, getDueCount]);
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;
+  if (error) return (
+    <View style={styles.empty}>
+      <Text style={styles.emptyTitle}>Failed to load cards</Text>
+      <Text style={styles.emptySubtitle}>{error}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>

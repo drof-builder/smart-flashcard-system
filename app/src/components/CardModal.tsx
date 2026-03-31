@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Modal, View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
 import { Card } from '../types';
 
@@ -29,6 +29,8 @@ export default function CardModal({ visible, card, onClose, onSave }: Props) {
     setLoading(true);
     try {
       await onSave(front.trim(), back.trim());
+    } catch (e) {
+      Alert.alert('Error', e instanceof Error ? e.message : 'Failed to save card.');
     } finally {
       setLoading(false);
     }
