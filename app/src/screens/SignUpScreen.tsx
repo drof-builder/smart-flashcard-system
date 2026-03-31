@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
+  Text, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,9 +20,12 @@ export default function SignUpScreen({ navigation }: Props) {
   const handleSignUp = async () => {
     setError(null);
     setLoading(true);
-    const err = await signUp(email.trim(), password, displayName.trim());
-    if (err) setError(err);
-    setLoading(false);
+    try {
+      const err = await signUp(email.trim(), password, displayName.trim());
+      if (err) setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

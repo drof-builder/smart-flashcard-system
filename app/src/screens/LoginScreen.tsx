@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
+  Text, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,9 +19,12 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     setError(null);
     setLoading(true);
-    const err = await signIn(email.trim(), password);
-    if (err) setError(err);
-    setLoading(false);
+    try {
+      const err = await signIn(email.trim(), password);
+      if (err) setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
