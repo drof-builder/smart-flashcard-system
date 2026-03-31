@@ -21,6 +21,7 @@ export default function FlipCardScreen({ navigation, route }: Props) {
   const [correctCount, setCorrectCount] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRating, setIsRating] = useState(false);
 
   useEffect(() => {
     getDueCards()
@@ -51,21 +52,27 @@ export default function FlipCardScreen({ navigation, route }: Props) {
   const card = cards[index];
 
   const handleRate = async (rating: number) => {
-    const existing = await getReviewForCard(card.id);
-    const saveError = await saveReview(card, rating, existing);
-    if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
-    const newCorrect = rating >= 3 ? correctCount + 1 : correctCount;
-    const nextIndex = index + 1;
-    if (nextIndex >= cards.length) {
-      navigation.replace('SessionSummary', {
-        result: { total: cards.length, correct: newCorrect },
-        deckId,
-        deckName,
-      });
-    } else {
-      if (rating >= 3) setCorrectCount(c => c + 1);
-      setFlipped(false);
-      setIndex(nextIndex);
+    if (isRating) return;
+    setIsRating(true);
+    try {
+      const existing = await getReviewForCard(card.id);
+      const saveError = await saveReview(card, rating, existing);
+      if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+      const newCorrect = rating >= 3 ? correctCount + 1 : correctCount;
+      const nextIndex = index + 1;
+      if (nextIndex >= cards.length) {
+        navigation.replace('SessionSummary', {
+          result: { total: cards.length, correct: newCorrect },
+          deckId,
+          deckName,
+        });
+      } else {
+        if (rating >= 3) setCorrectCount(c => c + 1);
+        setFlipped(false);
+        setIndex(nextIndex);
+      }
+    } finally {
+      setIsRating(false);
     }
   };
 
@@ -86,8 +93,9 @@ export default function FlipCardScreen({ navigation, route }: Props) {
             {([0, 1, 2, 3, 4, 5] as const).map(r => (
               <TouchableOpacity
                 key={r}
-                style={[styles.ratingBtn, r < 3 && styles.ratingBtnFail]}
+                style={[styles.ratingBtn, r < 3 && styles.ratingBtnFail, isRating && { opacity: 0.6 }]}
                 onPress={() => handleRate(r)}
+                disabled={isRating}
               >
                 <Text style={styles.ratingNum}>{r}</Text>
               </TouchableOpacity>
