@@ -1,0 +1,20 @@
+# Superpowers tooling
+.superpowers/
+
+# Local database
+backend/database.sqlite
+
+# Node
+node_modules/
+
+# Expo
+.expo/
+dist/
+
+# Environment variables
+.env
+*.env.local
+
+# OS
+.DS_Store
+Thumbs.db
