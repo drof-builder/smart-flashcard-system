@@ -66,7 +66,10 @@ export default function DeckListScreen({ navigation }: Props) {
                   { text: 'Delete', style: 'destructive', onPress: () =>
                     Alert.alert('Delete Deck', `Delete "${item.name}"? All cards will be deleted.`, [
                       { text: 'Cancel', style: 'cancel' },
-                      { text: 'Delete', style: 'destructive', onPress: () => deleteDeck(item.id) },
+                      { text: 'Delete', style: 'destructive', onPress: async () => {
+          const err = await deleteDeck(item.id);
+          if (err) Alert.alert('Error', err);
+        } },
                     ])
                   },
                   { text: 'Cancel', style: 'cancel' },
@@ -84,8 +87,10 @@ export default function DeckListScreen({ navigation }: Props) {
         deck={editingDeck}
         onClose={() => setModalVisible(false)}
         onSave={async (name, description) => {
-          if (editingDeck) await updateDeck(editingDeck.id, name, description);
-          else await createDeck(name, description);
+          const err = editingDeck
+            ? await updateDeck(editingDeck.id, name, description)
+            : await createDeck(name, description);
+          if (err) { Alert.alert('Error', err); return; }
           setModalVisible(false);
         }}
       />

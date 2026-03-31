@@ -27,8 +27,11 @@ export default function DeckModal({ visible, deck, onClose, onSave }: Props) {
   const handleSave = async () => {
     if (!name.trim()) return;
     setLoading(true);
-    await onSave(name.trim(), description.trim());
-    setLoading(false);
+    try {
+      await onSave(name.trim(), description.trim());
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
