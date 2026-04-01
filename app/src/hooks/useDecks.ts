@@ -25,7 +25,8 @@ export function useDecks() {
   useEffect(() => { fetchDecks(); }, [fetchDecks]);
 
   const createDeck = async (name: string, description: string): Promise<string | null> => {
-    const { error } = await supabase.from('decks').insert({ name, description: description || null });
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('decks').insert({ name, description: description || null, user_id: user?.id });
     if (error) return error.message;
     await fetchDecks();
     return null;
