@@ -78,5 +78,15 @@ export function useReviews(deckId: string) {
     return error?.message ?? null;
   }, []);
 
-  return { getDueCards, getDueCount, getReviewForCard, saveReview };
+  const getAllCards = useCallback(async (): Promise<Card[]> => {
+    const { data, error } = await supabase
+      .from('cards')
+      .select('*')
+      .eq('deck_id', deckId);
+
+    if (error || !data) return [];
+    return data;
+  }, [deckId]);
+
+  return { getDueCards, getDueCount, getReviewForCard, saveReview, getAllCards };
 }
