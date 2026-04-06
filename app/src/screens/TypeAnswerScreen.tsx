@@ -19,7 +19,7 @@ function normalize(s: string): string {
 }
 
 export default function TypeAnswerScreen({ navigation, route }: Props) {
-  const { deckId, deckName } = route.params;
+  const { deckId, deckName, practiceMode } = route.params;
   const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
   const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
@@ -66,9 +66,11 @@ export default function TypeAnswerScreen({ navigation, route }: Props) {
     const correct = normalize(input) === normalize(card.back);
     const rating = correct ? 4 : 1;
     if (correct) setCorrectCount(c => c + 1);
-    const existing = await getReviewForCard(card.id);
-    const saveError = await saveReview(card, rating, existing);
-    if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+    if (!practiceMode) {
+      const existing = await getReviewForCard(card.id);
+      const saveError = await saveReview(card, rating, existing);
+      if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+    }
   };
 
   const handleNext = () => {

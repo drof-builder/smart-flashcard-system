@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function FlipCardScreen({ navigation, route }: Props) {
-  const { deckId, deckName } = route.params;
+  const { deckId, deckName, practiceMode } = route.params;
   const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
   const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
@@ -55,9 +55,11 @@ export default function FlipCardScreen({ navigation, route }: Props) {
     if (isRating) return;
     setIsRating(true);
     try {
-      const existing = await getReviewForCard(card.id);
-      const saveError = await saveReview(card, rating, existing);
-      if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+      if (!practiceMode) {
+        const existing = await getReviewForCard(card.id);
+        const saveError = await saveReview(card, rating, existing);
+        if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+      }
       const newCorrect = rating >= 3 ? correctCount + 1 : correctCount;
       const nextIndex = index + 1;
       if (nextIndex >= cards.length) {

@@ -25,7 +25,7 @@ function buildOptions(correct: Card, allCards: Card[]): string[] {
 }
 
 export default function MultipleChoiceScreen({ navigation, route }: Props) {
-  const { deckId, deckName } = route.params;
+  const { deckId, deckName, practiceMode } = route.params;
   const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
   const { cards: allCards } = useCards(deckId);
   const [dueCards, setDueCards] = useState<Card[]>([]);
@@ -71,9 +71,11 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
     const isCorrect = option === card.back;
     const rating = isCorrect ? 4 : 1;
     const newCorrect = isCorrect ? correctCount + 1 : correctCount;
-    const existing = await getReviewForCard(card.id);
-    const saveError = await saveReview(card, rating, existing);
-    if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+    if (!practiceMode) {
+      const existing = await getReviewForCard(card.id);
+      const saveError = await saveReview(card, rating, existing);
+      if (saveError) setToastMessage("Couldn't save review. Will retry next session.");
+    }
     setIsSaving(false);
     setTimeout(() => {
       const nextIndex = index + 1;
