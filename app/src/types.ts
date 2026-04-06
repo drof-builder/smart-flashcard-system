@@ -39,9 +39,10 @@ export type MainStackParamList = {
   DeckList: undefined;
   DeckDetail: { deckId: string; deckName: string };
   StudyModePicker: { deckId: string; deckName: string };
-  FlipCards: { deckId: string; deckName: string };
-  MultipleChoice: { deckId: string; deckName: string };
-  TypeAnswer: { deckId: string; deckName: string };
+  PracticeModePicker: { deckId: string; deckName: string };
+  FlipCards: { deckId: string; deckName: string; practiceMode?: boolean };
+  MultipleChoice: { deckId: string; deckName: string; practiceMode?: boolean };
+  TypeAnswer: { deckId: string; deckName: string; practiceMode?: boolean };
   SessionSummary: { result: SessionResult; deckId: string; deckName: string };
   Settings: undefined;
 };

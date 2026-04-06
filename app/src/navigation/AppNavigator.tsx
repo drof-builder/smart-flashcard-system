@@ -15,6 +15,7 @@ import MultipleChoiceScreen from '../screens/MultipleChoiceScreen';
 import TypeAnswerScreen from '../screens/TypeAnswerScreen';
 import SessionSummaryScreen from '../screens/SessionSummaryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import PracticeModePickerScreen from '../screens/PracticeModePickerScreen';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
@@ -34,6 +35,7 @@ function MainNavigator() {
       <MainStack.Screen name="DeckList" component={DeckListScreen} options={{ title: 'My Decks' }} />
       <MainStack.Screen name="DeckDetail" component={DeckDetailScreen} />
       <MainStack.Screen name="StudyModePicker" component={StudyModePickerScreen} options={{ title: 'Study Mode' }} />
+      <MainStack.Screen name="PracticeModePicker" component={PracticeModePickerScreen} options={{ title: 'Practice Mode' }} />
       <MainStack.Screen name="FlipCards" component={FlipCardScreen} options={{ title: 'Flip Cards' }} />
       <MainStack.Screen name="MultipleChoice" component={MultipleChoiceScreen} options={{ title: 'Multiple Choice' }} />
       <MainStack.Screen name="TypeAnswer" component={TypeAnswerScreen} options={{ title: 'Type Answer' }} />
