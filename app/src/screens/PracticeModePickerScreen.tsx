@@ -34,7 +34,7 @@ export default function PracticeModePickerScreen({ navigation, route }: Props) {
   const canMultipleChoice = cards.length >= 4;
 
   const navigate = (mode: 'FlipCards' | 'MultipleChoice' | 'TypeAnswer') => {
-    navigation.navigate(mode, { deckId, deckName, practiceMode: true });
+    navigation.navigate(mode, { deckId, deckName, practiceMode: true, filterMode: filter });
   };
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;

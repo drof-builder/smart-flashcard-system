@@ -19,8 +19,8 @@ function normalize(s: string): string {
 }
 
 export default function TypeAnswerScreen({ navigation, route }: Props) {
-  const { deckId, deckName, practiceMode } = route.params;
-  const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
+  const { deckId, deckName, practiceMode, filterMode } = route.params;
+  const { getDueCards, saveReview, getReviewForCard, getAllCards } = useReviews(deckId);
   const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -32,10 +32,11 @@ export default function TypeAnswerScreen({ navigation, route }: Props) {
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    getDueCards()
+    const load = practiceMode && filterMode === 'all' ? getAllCards : getDueCards;
+    load()
       .then(c => { setCards(c); setLoading(false); })
       .catch(() => { setLoadError('Could not load cards. Check your connection.'); setLoading(false); });
-  }, [getDueCards]);
+  }, [getDueCards, getAllCards, practiceMode, filterMode]);
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;
 

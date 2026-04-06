@@ -12,8 +12,8 @@ type Props = {
 };
 
 export default function FlipCardScreen({ navigation, route }: Props) {
-  const { deckId, deckName, practiceMode } = route.params;
-  const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
+  const { deckId, deckName, practiceMode, filterMode } = route.params;
+  const { getDueCards, saveReview, getReviewForCard, getAllCards } = useReviews(deckId);
   const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -24,10 +24,11 @@ export default function FlipCardScreen({ navigation, route }: Props) {
   const [isRating, setIsRating] = useState(false);
 
   useEffect(() => {
-    getDueCards()
+    const load = practiceMode && filterMode === 'all' ? getAllCards : getDueCards;
+    load()
       .then(c => { setCards(c); setLoading(false); })
       .catch(() => { setLoadError('Could not load cards. Check your connection.'); setLoading(false); });
-  }, [getDueCards]);
+  }, [getDueCards, getAllCards, practiceMode, filterMode]);
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;
 

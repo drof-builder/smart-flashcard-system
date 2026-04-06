@@ -40,9 +40,9 @@ export type MainStackParamList = {
   DeckDetail: { deckId: string; deckName: string };
   StudyModePicker: { deckId: string; deckName: string };
   PracticeModePicker: { deckId: string; deckName: string };
-  FlipCards: { deckId: string; deckName: string; practiceMode?: boolean };
-  MultipleChoice: { deckId: string; deckName: string; practiceMode?: boolean };
-  TypeAnswer: { deckId: string; deckName: string; practiceMode?: boolean };
+  FlipCards: { deckId: string; deckName: string; practiceMode?: boolean; filterMode?: 'all' | 'due' };
+  MultipleChoice: { deckId: string; deckName: string; practiceMode?: boolean; filterMode?: 'all' | 'due' };
+  TypeAnswer: { deckId: string; deckName: string; practiceMode?: boolean; filterMode?: 'all' | 'due' };
   SessionSummary: { result: SessionResult; deckId: string; deckName: string };
   Settings: undefined;
 };

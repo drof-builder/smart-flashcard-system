@@ -25,8 +25,8 @@ function buildOptions(correct: Card, allCards: Card[]): string[] {
 }
 
 export default function MultipleChoiceScreen({ navigation, route }: Props) {
-  const { deckId, deckName, practiceMode } = route.params;
-  const { getDueCards, saveReview, getReviewForCard } = useReviews(deckId);
+  const { deckId, deckName, practiceMode, filterMode } = route.params;
+  const { getDueCards, saveReview, getReviewForCard, getAllCards } = useReviews(deckId);
   const { cards: allCards } = useCards(deckId);
   const [dueCards, setDueCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
@@ -39,10 +39,11 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    getDueCards()
+    const load = practiceMode && filterMode === 'all' ? getAllCards : getDueCards;
+    load()
       .then(c => { setDueCards(c); setLoading(false); })
       .catch(() => { setLoadError('Could not load cards. Check your connection.'); setLoading(false); });
-  }, [getDueCards]);
+  }, [getDueCards, getAllCards, practiceMode, filterMode]);
 
   useEffect(() => {
     if (dueCards.length > 0 && allCards.length >= 4 && index < dueCards.length) {
