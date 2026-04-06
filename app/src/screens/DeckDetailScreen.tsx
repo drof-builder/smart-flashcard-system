@@ -62,6 +62,13 @@ export default function DeckDetailScreen({ navigation, route }: Props) {
         >
           <Text style={styles.studyBtnText}>Study →</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.practiceBtn, cards.length === 0 && styles.studyBtnDisabled]}
+          disabled={cards.length === 0}
+          onPress={() => navigation.navigate('PracticeModePicker', { deckId, deckName })}
+        >
+          <Text style={styles.practiceBtnText}>Practice</Text>
+        </TouchableOpacity>
       </View>
 
       {cards.length === 0 ? (
@@ -118,6 +125,8 @@ const styles = StyleSheet.create({
   studyBtn: { marginLeft: 'auto', backgroundColor: '#6366f1', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
   studyBtnDisabled: { backgroundColor: '#d1d5db' },
   studyBtnText: { color: '#fff', fontWeight: 'bold' },
+  practiceBtn: { marginLeft: 8, backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#6366f1', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
+  practiceBtnText: { color: '#6366f1', fontWeight: 'bold' },
   card: { marginHorizontal: 16, marginTop: 8, padding: 16, backgroundColor: '#fff', borderRadius: 8, elevation: 2 },
   front: { fontSize: 16, fontWeight: '600' },
   back: { color: '#6b7280', marginTop: 4 },
