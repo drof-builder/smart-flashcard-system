@@ -20,13 +20,15 @@ export default function PracticeModePickerScreen({ navigation, route }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const [cardCount, setCardCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
+    setLoadError(null);
     const fetch = filter === 'all' ? getAllCards : getDueCards;
     fetch()
       .then(c => { setCardCount(c.length); setLoading(false); })
-      .catch(() => { setCardCount(0); setLoading(false); });
+      .catch(() => { setLoadError('Could not load cards. Check your connection.'); setLoading(false); });
   }, [filter, getAllCards, getDueCards]);
 
   const canMultipleChoice = cards.length >= 4;
@@ -36,6 +38,15 @@ export default function PracticeModePickerScreen({ navigation, route }: Props) {
   };
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#6366f1" />;
+
+  if (loadError) return (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorText}>{loadError}</Text>
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backBtnText}>Go Back</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -121,4 +132,8 @@ const styles = StyleSheet.create({
   modeInfo: { flex: 1 },
   modeName: { fontSize: 18, fontWeight: '600' },
   modeDesc: { color: '#6b7280', marginTop: 2, fontSize: 14 },
+  errorContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  errorText: { fontSize: 16, color: '#374151', textAlign: 'center', marginBottom: 24 },
+  backBtn: { backgroundColor: '#6366f1', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 8 },
+  backBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
