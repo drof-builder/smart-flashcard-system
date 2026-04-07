@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import JSZip from 'jszip';
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.js';
 
 GlobalWorkerOptions.workerSrc = '';
 
