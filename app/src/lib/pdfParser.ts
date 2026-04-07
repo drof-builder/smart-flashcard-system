@@ -1,3 +1,9 @@
+import * as FileSystem from 'expo-file-system';
+import JSZip from 'jszip';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+GlobalWorkerOptions.workerSrc = '';
+
 export type ParsedCard = {
   questionNumber: number;
   front: string;
@@ -110,4 +116,61 @@ export function buildParsedCards(
   }
 
   return { cards, skipped };
+}
+
+async function extractTextFromPdf(pdfData: Uint8Array): Promise<string> {
+  const doc = await getDocument({ data: pdfData, disableWorker: true }).promise;
+  let fullText = '';
+
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    let lastY: number | null = null;
+    let pageText = '';
+
+    for (const item of content.items) {
+      if (!('str' in item)) continue;
+      const y = (item as any).transform?.[5];
+      if (lastY !== null && y !== undefined && Math.abs(y - lastY) > 2) {
+        pageText += '\n';
+      } else if (pageText.length > 0 && !pageText.endsWith('\n')) {
+        pageText += ' ';
+      }
+      pageText += item.str;
+      if (y !== undefined) lastY = y;
+    }
+
+    fullText += pageText + '\n';
+  }
+
+  return fullText;
+}
+
+export async function parseZipFile(
+  fileUri: string
+): Promise<{ cards: ParsedCard[]; skipped: number }> {
+  const base64 = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  const zip = await JSZip.loadAsync(base64, { base64: true });
+  const fileNames = Object.keys(zip.files);
+
+  const questionsFile = fileNames.find(n => /questions/i.test(n) && n.endsWith('.pdf'));
+  const answerFile = fileNames.find(n => /answer/i.test(n) && n.endsWith('.pdf'));
+
+  if (!questionsFile || !answerFile) {
+    throw new Error('ZIP must contain a Questions PDF and an Answer PDF.');
+  }
+
+  const questionsPdf = await zip.files[questionsFile].async('uint8array');
+  const answerPdf = await zip.files[answerFile].async('uint8array');
+
+  const questionsText = await extractTextFromPdf(questionsPdf);
+  const answerText = await extractTextFromPdf(answerPdf);
+
+  const questionBlocks = splitIntoQuestionBlocks(questionsText);
+  const answers = parseAnswerText(answerText);
+
+  return buildParsedCards(questionBlocks, answers);
 }
