@@ -23,9 +23,14 @@ export default function DeckListScreen({ navigation }: Props) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={() => { setEditingDeck(null); setModalVisible(true); }}>
-          <Text style={{ color: '#6366f1', fontSize: 16, marginRight: 8 }}>+ New</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => navigation.navigate('ImportDeck')}>
+            <Text style={{ color: '#6366f1', fontSize: 16, marginRight: 16 }}>Import</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { setEditingDeck(null); setModalVisible(true); }}>
+            <Text style={{ color: '#6366f1', fontSize: 16, marginRight: 8 }}>+ New</Text>
+          </TouchableOpacity>
+        </View>
       ),
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
