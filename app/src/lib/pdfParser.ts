@@ -79,7 +79,7 @@ export function parseAnswerText(text: string): Map<number, string> {
 }
 
 export function shouldSkipQuestion(text: string): boolean {
-  return /\bFig\./i.test(text);
+  return /\bfig\./i.test(text) || /\bfigure\b/i.test(text);
 }
 
 export function buildParsedCards(

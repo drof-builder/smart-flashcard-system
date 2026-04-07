@@ -105,6 +105,10 @@ describe('shouldSkipQuestion', () => {
     expect(shouldSkipQuestion('What is the correct answer?')).toBe(false);
   });
 
+  it('returns true for the word figure', () => {
+    expect(shouldSkipQuestion('Refer to the figure below')).toBe(true);
+  });
+
   it('does not match Config or similar words', () => {
     expect(shouldSkipQuestion('Configure the system')).toBe(false);
   });
