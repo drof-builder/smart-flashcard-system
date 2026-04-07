@@ -6,13 +6,23 @@ import { MainStackParamList, Card } from '../types';
 import { useReviews } from '../hooks/useReviews';
 import { useCards } from '../hooks/useCards';
 import Toast from '../components/Toast';
+import { parseImportedCard } from '../lib/cardUtils';
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'MultipleChoice'>;
   route: RouteProp<MainStackParamList, 'MultipleChoice'>;
 };
 
-function buildOptions(correct: Card, allCards: Card[]): string[] {
+function buildOptions(correct: Card, allCards: Card[]): { options: string[]; correctOption: string } {
+  const imported = parseImportedCard(correct.back);
+  if (imported) {
+    const correctOpt = imported.options.find(o => o.startsWith(`${imported.correctAnswer})`)) ?? '';
+    return {
+      options: [...imported.options].sort(() => Math.random() - 0.5),
+      correctOption: correctOpt,
+    };
+  }
+
   const distractors = allCards
     .filter(c => c.id !== correct.id)
     .map(c => c.back)
@@ -21,7 +31,10 @@ function buildOptions(correct: Card, allCards: Card[]): string[] {
     .sort(() => Math.random() - 0.5)
     .slice(0, 3);
 
-  return [...distractors, correct.back].sort(() => Math.random() - 0.5);
+  return {
+    options: [...distractors, correct.back].sort(() => Math.random() - 0.5),
+    correctOption: correct.back,
+  };
 }
 
 export default function MultipleChoiceScreen({ navigation, route }: Props) {
@@ -31,6 +44,7 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
   const [dueCards, setDueCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
   const [options, setOptions] = useState<string[]>([]);
+  const [correctOption, setCorrectOption] = useState<string>('');
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [correctCount, setCorrectCount] = useState(0);
@@ -47,7 +61,9 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
 
   useEffect(() => {
     if (dueCards.length > 0 && allCards.length >= 4 && index < dueCards.length) {
-      setOptions(buildOptions(dueCards[index], allCards));
+      const result = buildOptions(dueCards[index], allCards);
+      setOptions(result.options);
+      setCorrectOption(result.correctOption);
       setSelected(null);
     }
   }, [index, dueCards, allCards]);
@@ -69,7 +85,7 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
     if (selected !== null || isSaving) return;
     setIsSaving(true);
     setSelected(option);
-    const isCorrect = option === card.back;
+    const isCorrect = option === correctOption;
     const rating = isCorrect ? 4 : 1;
     const newCorrect = isCorrect ? correctCount + 1 : correctCount;
     if (!practiceMode) {
@@ -104,7 +120,7 @@ export default function MultipleChoiceScreen({ navigation, route }: Props) {
           let bg = '#fff';
           let border = '#e5e7eb';
           if (selected !== null) {
-            if (opt === card.back) { bg = '#dcfce7'; border = '#16a34a'; }
+            if (opt === correctOption) { bg = '#dcfce7'; border = '#16a34a'; }
             else if (opt === selected) { bg = '#fee2e2'; border = '#dc2626'; }
           }
           return (
