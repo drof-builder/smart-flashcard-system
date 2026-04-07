@@ -8,6 +8,7 @@ import { RouteProp } from '@react-navigation/native';
 import { MainStackParamList, Card } from '../types';
 import { useReviews } from '../hooks/useReviews';
 import Toast from '../components/Toast';
+import { parseImportedCard } from '../lib/cardUtils';
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'TypeAnswer'>;
@@ -16,6 +17,19 @@ type Props = {
 
 function normalize(s: string): string {
   return s.trim().toLowerCase();
+}
+
+function getCorrectAnswer(back: string): string {
+  const imported = parseImportedCard(back);
+  return imported ? imported.correctAnswer : back;
+}
+
+function getCorrectDisplay(back: string): string {
+  const imported = parseImportedCard(back);
+  if (imported) {
+    return imported.options.find(o => o.startsWith(`${imported.correctAnswer})`)) ?? imported.correctAnswer;
+  }
+  return back;
 }
 
 export default function TypeAnswerScreen({ navigation, route }: Props) {
@@ -59,12 +73,13 @@ export default function TypeAnswerScreen({ navigation, route }: Props) {
   );
 
   const card = cards[index];
-  const isCorrect = submitted && normalize(input) === normalize(card.back);
+  const correctAnswer = getCorrectAnswer(card.back);
+  const isCorrect = submitted && normalize(input) === normalize(correctAnswer);
 
   const handleSubmit = async () => {
     if (!input.trim() || submitted) return;
     setSubmitted(true);
-    const correct = normalize(input) === normalize(card.back);
+    const correct = normalize(input) === normalize(getCorrectAnswer(card.back));
     const rating = correct ? 4 : 1;
     if (correct) setCorrectCount(c => c + 1);
     if (!practiceMode) {
@@ -119,7 +134,7 @@ export default function TypeAnswerScreen({ navigation, route }: Props) {
             {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
           </Text>
           {!isCorrect && (
-            <Text style={styles.correctAnswer}>Correct answer: {card.back}</Text>
+            <Text style={styles.correctAnswer}>Correct answer: {getCorrectDisplay(card.back)}</Text>
           )}
         </View>
       )}
