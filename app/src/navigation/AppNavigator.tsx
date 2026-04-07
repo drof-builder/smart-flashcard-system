@@ -16,6 +16,8 @@ import TypeAnswerScreen from '../screens/TypeAnswerScreen';
 import SessionSummaryScreen from '../screens/SessionSummaryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import PracticeModePickerScreen from '../screens/PracticeModePickerScreen';
+import ImportScreen from '../screens/ImportScreen';
+import ImportPreviewScreen from '../screens/ImportPreviewScreen';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
@@ -41,6 +43,8 @@ function MainNavigator() {
       <MainStack.Screen name="TypeAnswer" component={TypeAnswerScreen} options={{ title: 'Type Answer' }} />
       <MainStack.Screen name="SessionSummary" component={SessionSummaryScreen} options={{ title: 'Session Complete', headerLeft: () => null }} />
       <MainStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <MainStack.Screen name="ImportDeck" component={ImportScreen} options={{ title: 'Import Deck' }} />
+      <MainStack.Screen name="ImportPreview" component={ImportPreviewScreen} options={{ title: 'Import Preview' }} />
     </MainStack.Navigator>
   );
 }

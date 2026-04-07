@@ -45,4 +45,6 @@ export type MainStackParamList = {
   TypeAnswer: { deckId: string; deckName: string; practiceMode?: boolean; filterMode?: 'all' | 'due' };
   SessionSummary: { result: SessionResult; deckId: string; deckName: string };
   Settings: undefined;
+  ImportDeck: undefined;
+  ImportPreview: { deckName: string };
 };
