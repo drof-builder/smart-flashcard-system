@@ -108,4 +108,24 @@ describe('extractText', () => {
       expect(extractText(pdf)).toBe('');
     });
   });
+
+  describe('Win-1252 encoding', () => {
+    it('decodes en dash (0x96 → U+2013)', () => {
+      // Raw bytes: ( a – b ) Tj
+      const buf = new Uint8Array([0x28, 0x61, 0x96, 0x62, 0x29, 0x20, 0x54, 0x6A]);
+      expect(extractText(buf)).toBe('a\u2013b');
+    });
+
+    it('decodes right single quote (0x92 → U+2019)', () => {
+      // Raw bytes: ( i t ' s ) Tj
+      const buf = new Uint8Array([0x28, 0x69, 0x74, 0x92, 0x73, 0x29, 0x20, 0x54, 0x6A]);
+      expect(extractText(buf)).toBe('it\u2019s');
+    });
+
+    it('decodes curly double quotes (0x93 → U+201C, 0x94 → U+201D)', () => {
+      // Raw bytes: ( " h i " ) Tj
+      const buf = new Uint8Array([0x28, 0x93, 0x68, 0x69, 0x94, 0x29, 0x20, 0x54, 0x6A]);
+      expect(extractText(buf)).toBe('\u201Chi\u201D');
+    });
+  });
 });
