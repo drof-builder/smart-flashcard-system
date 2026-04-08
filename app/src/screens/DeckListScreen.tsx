@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
   StyleSheet, TextInput, ActivityIndicator, Alert,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { MainStackParamList, Deck } from '../types';
 import { useDecks } from '../hooks/useDecks';
 import DeckModal from '../components/DeckModal';
@@ -11,8 +12,10 @@ import DeckModal from '../components/DeckModal';
 type Props = { navigation: NativeStackNavigationProp<MainStackParamList, 'DeckList'> };
 
 export default function DeckListScreen({ navigation }: Props) {
-  const { decks, loading, createDeck, updateDeck, deleteDeck } = useDecks();
+  const { decks, loading, createDeck, updateDeck, deleteDeck, refetch } = useDecks();
   const [search, setSearch] = useState('');
+
+  useFocusEffect(useCallback(() => { refetch(); }, [refetch]));
   const [modalVisible, setModalVisible] = useState(false);
   const [editingDeck, setEditingDeck] = useState<Deck | null>(null);
 
