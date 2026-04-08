@@ -19,6 +19,11 @@ export function splitIntoQuestionBlocks(text: string): { num: number; body: stri
   return questions;
 }
 
+function normalizeOptions(text: string): string {
+  // When b), c), d) appear after 2+ spaces on the same line, move each to its own line.
+  return text.replace(/[ \t]{2,}([b-d])\)[ \t]*/g, '\n$1) ');
+}
+
 export function extractQuestionAndOptions(
   body: string
 ): { questionText: string; options: string[] } | null {
@@ -27,7 +32,7 @@ export function extractQuestionAndOptions(
 
   const rawQuestion = body.substring(0, firstOption.index);
   const questionText = rawQuestion.replace(/\s+/g, ' ').trim();
-  const optionsSection = body.substring(firstOption.index);
+  const optionsSection = normalizeOptions(body.substring(firstOption.index));
 
   const optionStarts: { letter: string; startIndex: number; contentStart: number }[] = [];
   const regex = /(?:^|\n)\s*([a-d])\)\s*/gm;

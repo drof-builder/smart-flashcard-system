@@ -65,6 +65,30 @@ describe('extractQuestionAndOptions', () => {
     const result = extractQuestionAndOptions(body);
     expect(result!.questionText).toBe('This is a multi-line question text.');
   });
+
+  it('handles all four options inline on the same line', () => {
+    const body = 'Which binary sum is correct?\n\na) 00110001  b)  01111011  c)  10000100  d)  11000101';
+    const result = extractQuestionAndOptions(body);
+    expect(result).not.toBeNull();
+    expect(result!.options).toEqual([
+      'a) 00110001',
+      'b) 01111011',
+      'c) 10000100',
+      'd) 11000101',
+    ]);
+  });
+
+  it('handles options split across two lines with inline pairs', () => {
+    const body = 'Pick the memory type:\n\na) SSD  b)  Virtual memory\nc) Cache memory  d)  Defragmentation';
+    const result = extractQuestionAndOptions(body);
+    expect(result).not.toBeNull();
+    expect(result!.options).toEqual([
+      'a) SSD',
+      'b) Virtual memory',
+      'c) Cache memory',
+      'd) Defragmentation',
+    ]);
+  });
 });
 
 describe('parseAnswerText', () => {
