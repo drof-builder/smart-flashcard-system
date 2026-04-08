@@ -87,7 +87,13 @@ export default function ImportPreviewScreen({ navigation, route }: Props) {
       if (cardsError) throw new Error(cardsError.message);
 
       clearPendingImport();
-      navigation.navigate('DeckDetail', { deckId: deck.id, deckName });
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'DeckList' },
+          { name: 'DeckDetail', params: { deckId: deck.id, deckName } },
+        ],
+      });
     } catch (error) {
       Alert.alert(
         'Import Error',
