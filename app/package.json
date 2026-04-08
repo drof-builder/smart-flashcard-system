@@ -17,7 +17,7 @@
     "moduleNameMapper": {
       "^@react-native-async-storage/async-storage$": "<rootDir>/node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js",
       "^expo-secure-store$": "<rootDir>/__mocks__/expo-secure-store.ts",
-      "^expo-file-system$": "<rootDir>/__mocks__/expo-file-system.ts",
+      "^expo-file-system(/.*)?$": "<rootDir>/__mocks__/expo-file-system.ts",
       "^jszip$": "<rootDir>/__mocks__/jszip.ts",
       "^pdfjs-dist/.*$": "<rootDir>/__mocks__/pdfjs-dist.ts"
     }
@@ -29,6 +29,7 @@
     "@supabase/supabase-js": "^2.101.0",
     "expo": "~54.0.33",
     "expo-document-picker": "~14.0.8",
+    "expo-file-system": "~19.0.21",
     "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "jszip": "^3.10.1",
