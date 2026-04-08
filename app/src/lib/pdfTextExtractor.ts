@@ -154,6 +154,24 @@ function parsePdfString(text: string, start: number): { value: string; end: numb
   return { value: decodePdfString(raw), end: i };
 }
 
+function joinLines(lines: string[]): string {
+  if (lines.length === 0) return '';
+  let result = lines[0];
+  for (let i = 1; i < lines.length; i++) {
+    const curr = lines[i];
+    if (!result || !curr) { result += '\n' + curr; continue; }
+    const lastChar = result[result.length - 1];
+    const firstChar = curr[0];
+    // Mid-word break: alphanumeric end + lowercase start → join directly
+    if (/[a-zA-Z0-9]/.test(lastChar) && /[a-z]/.test(firstChar)) {
+      result += curr;
+    } else {
+      result += '\n' + curr;
+    }
+  }
+  return result;
+}
+
 function extractTextFromStream(streamData: Uint8Array): string {
   const text = toStr(streamData, 0, streamData.length);
   const lines: string[] = [];
@@ -249,7 +267,7 @@ function extractTextFromStream(streamData: Uint8Array): string {
     i++;
   }
 
-  return lines.join('\n');
+  return joinLines(lines);
 }
 
 /**

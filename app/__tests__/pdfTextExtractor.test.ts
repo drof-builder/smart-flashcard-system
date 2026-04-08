@@ -150,4 +150,26 @@ describe('extractText', () => {
       expect(extractText(pdf)).toBe('Hello');
     });
   });
+
+  describe('mid-word break joining', () => {
+    it('joins Tj calls that split a word mid-character', () => {
+      const pdf = makePdf('(combina) Tj\n(tion) Tj');
+      expect(extractText(pdf)).toBe('combination');
+    });
+
+    it('joins across three fragments', () => {
+      const pdf = makePdf('(fo) Tj\n(llo) Tj\n(wing) Tj');
+      expect(extractText(pdf)).toBe('following');
+    });
+
+    it('does not join when next chunk starts with uppercase', () => {
+      const pdf = makePdf('(sentence.) Tj\n(Next) Tj');
+      expect(extractText(pdf)).toBe('sentence.\nNext');
+    });
+
+    it('does not join after punctuation', () => {
+      const pdf = makePdf('(Q3.) Tj\n(question text) Tj');
+      expect(extractText(pdf)).toBe('Q3.\nquestion text');
+    });
+  });
 });
