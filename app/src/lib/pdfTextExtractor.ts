@@ -89,6 +89,20 @@ const WIN1252: Record<number, string> = {
   0x9C: '\u0153', 0x9E: '\u017E', 0x9F: '\u0178',
 };
 
+function decodeHexString(hex: string): string {
+  const clean = hex.replace(/\s/g, '');
+  if (clean.length % 2 !== 0) return ''; // odd-length = CID/corrupt, skip
+  let result = '';
+  for (let i = 0; i < clean.length; i += 2) {
+    const byte = parseInt(clean.substring(i, i + 2), 16);
+    if (byte < 0x20) continue; // skip null and control chars
+    if (byte < 0x80) { result += String.fromCharCode(byte); continue; }
+    if (byte <= 0x9F) { result += WIN1252[byte] ?? ''; continue; }
+    result += String.fromCharCode(byte);
+  }
+  return result;
+}
+
 function decodePdfString(s: string): string {
   let result = '';
   let i = 0;
@@ -179,6 +193,15 @@ function extractTextFromStream(streamData: Uint8Array): string {
           if (!parsed) { i++; continue; }
           tjLine += parsed.value;
           i = parsed.end;
+        } else if (text[i] === '<' && (i === 0 || text[i - 1] !== '<')) {
+          let j = i + 1;
+          let hex = '';
+          while (j < text.length && text[j] !== '>') { hex += text[j]; j++; }
+          if (j < text.length) {
+            tjLine += decodeHexString(hex);
+            i = j + 1;
+          } else { i++; }
+          continue;
         } else if (text[i] === '-' || (text[i] >= '0' && text[i] <= '9')) {
           // Parse number — large negative = word space
           let numStr = '';
@@ -202,6 +225,23 @@ function extractTextFromStream(streamData: Uint8Array): string {
         i += 2;
       }
       continue;
+    }
+
+    // Hex string: <...> Tj
+    if (text[i] === '<' && (i === 0 || text[i - 1] !== '<')) {
+      let j = i + 1;
+      let hex = '';
+      while (j < text.length && text[j] !== '>') { hex += text[j]; j++; }
+      if (j < text.length) {
+        j++; // skip '>'
+        while (j < text.length && (text[j] === ' ' || text[j] === '\r' || text[j] === '\n')) j++;
+        if (text[j] === 'T' && text[j + 1] === 'j') {
+          const decoded = decodeHexString(hex);
+          if (decoded.trim()) lines.push(decoded);
+          i = j + 2;
+          continue;
+        }
+      }
     }
 
     i++;

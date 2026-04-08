@@ -128,4 +128,26 @@ describe('extractText', () => {
       expect(extractText(buf)).toBe('\u201Chi\u201D');
     });
   });
+
+  describe('hex strings', () => {
+    it('decodes <...> Tj ASCII hex string', () => {
+      const pdf = makePdf('<48656C6C6F> Tj');
+      expect(extractText(pdf)).toBe('Hello');
+    });
+
+    it('silently drops null/control bytes in hex strings', () => {
+      const pdf = makePdf('<0003> Tj');
+      expect(extractText(pdf)).toBe('');
+    });
+
+    it('decodes hex string inside a TJ array', () => {
+      const pdf = makePdf('[<48656C6C6F>] TJ');
+      expect(extractText(pdf)).toBe('Hello');
+    });
+
+    it('mixes hex and paren strings in one TJ array', () => {
+      const pdf = makePdf('[<48656C> (lo)] TJ');
+      expect(extractText(pdf)).toBe('Hello');
+    });
+  });
 });
