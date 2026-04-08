@@ -219,7 +219,8 @@ export function extractText(pdfData: Uint8Array): string {
   const textParts: string[] = [];
 
   if (streams.length === 0) {
-    // No stream markers found — treat the whole buffer as a raw content stream
+    // No usable stream content found — try the buffer as a raw content stream
+    // (handles streamless test data and uncompressed single-stream PDFs)
     const extracted = extractTextFromStream(pdfData);
     return extracted.trim() ? extracted : '';
   }
