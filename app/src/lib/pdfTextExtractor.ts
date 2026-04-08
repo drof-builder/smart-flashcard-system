@@ -185,7 +185,6 @@ function extractTextFromStream(streamData: Uint8Array): string {
     if (text[i] === '[') {
       i++;
       let tjLine = '';
-      let isTJArray = false;
 
       while (i < text.length && text[i] !== ']') {
         if (text[i] === '(') {
@@ -193,14 +192,14 @@ function extractTextFromStream(streamData: Uint8Array): string {
           if (!parsed) { i++; continue; }
           tjLine += parsed.value;
           i = parsed.end;
-        } else if (text[i] === '<' && (i === 0 || text[i - 1] !== '<')) {
+        } else if (text[i] === '<' && text[i + 1] !== '<') {
           let j = i + 1;
           let hex = '';
           while (j < text.length && text[j] !== '>') { hex += text[j]; j++; }
           if (j < text.length) {
             tjLine += decodeHexString(hex);
             i = j + 1;
-          } else { i++; }
+          } else { i = j; }
           continue;
         } else if (text[i] === '-' || (text[i] >= '0' && text[i] <= '9')) {
           // Parse number — large negative = word space
@@ -228,7 +227,7 @@ function extractTextFromStream(streamData: Uint8Array): string {
     }
 
     // Hex string: <...> Tj
-    if (text[i] === '<' && (i === 0 || text[i - 1] !== '<')) {
+    if (text[i] === '<' && text[i + 1] !== '<') {
       let j = i + 1;
       let hex = '';
       while (j < text.length && text[j] !== '>') { hex += text[j]; j++; }
@@ -241,6 +240,9 @@ function extractTextFromStream(streamData: Uint8Array): string {
           i = j + 2;
           continue;
         }
+      } else {
+        i = j; // skip past the entire unterminated scan
+        continue;
       }
     }
 
